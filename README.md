@@ -25,14 +25,14 @@ Este projeto foi desenvolvido para atender ao desafio técnico proposto pela emp
 # 📁 Estrutura do Projeto
 
 📦 agente-chat/
-├── main.py
-├── requirements.txt
-├── .env
-├── README.md
-├── .gitignore
-└── agente/
-├── agent.py
-└── agent_tools.py
+-├── main.py
+-├── requirements.txt
+-├── .env
+-├── README.md
+-├── .gitignore
+-└── agente/
+-├── agent.py
+-└── agent_tools.py
 
 yaml
 Copiar código
