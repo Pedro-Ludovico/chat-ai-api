@@ -34,9 +34,6 @@ Este projeto foi desenvolvido para atender ao desafio técnico proposto pela emp
 ├── agent.py
 └── agent_tools.py
 
-yaml
-Copiar código
-
 ---
 
 # ▶️ Como executar o projeto (VERSÃO SIMPLES - baixar ZIP)
@@ -55,18 +52,23 @@ Siga os passos abaixo.
 
 Baixe e instale o Ollama:  
 -👉 https://ollama.com/download
+
 -Após instalar, abra um terminal no PowerShell e execute:
+
 -ollama pull mistral
 
 ---
 
-#3) Criar ambiente virtual e instalar dependências
+## 3) Criar ambiente virtual e instalar dependências
 Abra o PowerShell dentro da pasta do projeto extraído:
+
 -cd C:\Users\SeuUsuario\agente-chat
+
 Windows:
 -python -m venv .venv
 -.\.venv\Scripts\Activate.ps1
 -pip install -r requirements.txt
+
 Linux/macOS:
 -python -m venv .venv
 -source .venv/bin/activate
