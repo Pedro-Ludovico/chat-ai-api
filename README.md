@@ -30,7 +30,12 @@ Este projeto foi desenvolvido para atender ao desafio técnico proposto pela emp
 ├── README.md
 ├── README_EN.md
 ├── .gitignore
-  └── agente/
-  ├── agent.py
-  └── agent_tools.py
+└── agente/
+├── agent.py
+└── agent_tools.py
+
+---
+
+
+
 
