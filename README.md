@@ -25,14 +25,14 @@ Este projeto foi desenvolvido para atender ao desafio técnico proposto pela emp
 # 📁 Estrutura do Projeto
 
 📦 agente-chat/
--├── main.py
--├── requirements.txt
--├── .env
--├── README.md
--├── .gitignore
--└── agente/
--├── agent.py
--└── agent_tools.py
+├── main.py
+├── requirements.txt
+├── .env
+├── README.md
+├── .gitignore
+└── agente/
+├── agent.py
+└── agent_tools.py
 
 yaml
 Copiar código
@@ -51,7 +51,7 @@ Siga os passos abaixo.
 
 ---
 
-## 2) Instalar o Ollama
+# 2) Instalar o Ollama
 
 -Baixe e instale o Ollama:  
 -👉 https://ollama.com/download
@@ -64,7 +64,7 @@ Siga os passos abaixo.
 
 ---
 
-3) Criar ambiente virtual e instalar dependências
+#3) Criar ambiente virtual e instalar dependências
 Abra o PowerShell dentro da pasta do projeto extraído:
 
 -cd C:\Users\SeuUsuario\agente-chat
@@ -85,7 +85,7 @@ Abra o PowerShell dentro da pasta do projeto extraído:
 ---
 
 
-4) Iniciar o servidor FastAPI
+#4) Iniciar o servidor FastAPI
 No terminal (após ativar o .venv):
 
 -uvicorn main:app --reload
@@ -99,7 +99,7 @@ No terminal (após ativar o .venv):
 ---
 
 
-5) Iniciar o servidor do Ollama
+#5) Iniciar o servidor do Ollama
 -⚠️ O Ollama precisa estar rodando antes de fazer perguntas gerais ao agente.
 
 -Abra outro terminal e execute:
@@ -114,7 +114,7 @@ No terminal (após ativar o .venv):
 ---
 
 
-🚨 Problemas comuns com a porta 11434
+#🚨 Problemas comuns com a porta 11434
 -❗ Se o Ollama der erro de porta ocupada
 -Verifique a porta:
 
@@ -126,7 +126,9 @@ No terminal (após ativar o .venv):
 
 -Então outro processo está usando a porta.
 
--✔️ Como resolver
+---
+
+#✔️ Como resolver
 -Pegue o PID exibido
 
 -Finalize o processo:
