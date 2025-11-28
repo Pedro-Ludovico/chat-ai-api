@@ -7,8 +7,6 @@ Integração entre **FastAPI**, **Strands Agents SDK** e **Ollama** para criar u
 - Utilizar uma Tool de Cálculo para resolver contas com segurança  
 - Manter lógica de pré-processamento e pós-processamento da mensagem  
 
-Este projeto foi desenvolvido para atender ao desafio técnico proposto pela empresa, demonstrando boas práticas, modularização e uso eficiente de ferramentas de IA locais.
-
 ---
 
 # 🚀 Tecnologias Utilizadas
@@ -17,13 +15,14 @@ Este projeto foi desenvolvido para atender ao desafio técnico proposto pela emp
 - FastAPI  
 - Uvicorn  
 - Strands Agents SDK  
-- Ollama (modelo LLM local)  
+- Ollama  
 - Python-dotenv  
 
 ---
 
 # 📁 Estrutura do Projeto
 
+```
 📦 agente-chat/
 ├── main.py
 ├── requirements.txt
@@ -31,103 +30,110 @@ Este projeto foi desenvolvido para atender ao desafio técnico proposto pela emp
 ├── README.md
 ├── .gitignore
 └── agente/
-├── agent.py
-└── agent_tools.py
+    ├── agent.py
+    └── agent_tools.py
+```
 
 ---
 
-# ▶️ Como executar o projeto (VERSÃO SIMPLES - baixar ZIP)
+# ▶️ Como executar o projeto
 
-Siga os passos abaixo.
-
-## 1) Baixar o projeto
-1. Acesse o repositório no GitHub  
-2. Clique no botão verde **Code**  
-3. Clique em **Download ZIP**  
-4. Extraia o arquivo em alguma pasta no seu computador  
-
----
-
-# 2) Instalar o Ollama
+## 2) Instalar o Ollama
 
 Baixe e instale o Ollama:  
--👉 https://ollama.com/download
+👉 https://ollama.com/download
 
--Após instalar, abra um terminal no PowerShell e execute:
+Após instalar, execute:
 
--ollama pull mistral
+```
+ollama pull mistral
+```
 
 ---
 
 ## 3) Criar ambiente virtual e instalar dependências
-Abra o PowerShell dentro da pasta do projeto extraído:
 
--cd C:\Users\SeuUsuario\agente-chat
+Entre na pasta do projeto:
 
-Windows:
--python -m venv .venv
--.\.venv\Scripts\Activate.ps1
--pip install -r requirements.txt
+```
+cd C:\Users\SeuUsuario\agente-chat
+```
 
-Linux/macOS:
--python -m venv .venv
--source .venv/bin/activate
--pip install -r requirements.txt
+### Windows:
+```
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+```
 
-
----
-
-
-#4) Iniciar o servidor FastAPI
-No terminal (após ativar o .venv):
-
--uvicorn main:app --reload
-
--A API ficará disponível em:
-
--👉 http://localhost:8000
--👉 http://localhost:8000/docs (Swagger UI)
-
+### Linux/macOS:
+```
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
 
 ---
 
+## 4) Iniciar o servidor FastAPI
 
-#5) Iniciar o servidor do Ollama
--⚠️ O Ollama precisa estar rodando antes de fazer perguntas gerais ao agente.
+```
+uvicorn main:app --reload
+```
 
--Abra outro terminal e execute:
+A API ficará em:
 
--ollama serve
-
--Verifique se o modelo está disponível:
-
--curl http://127.0.0.1:11434/v1/models
-
+http://localhost:8000  
+http://localhost:8000/docs  
 
 ---
 
+## 5) Iniciar o servidor do Ollama
 
-#🚨 Problemas comuns com a porta 11434
--❗ Se o Ollama der erro de porta ocupada
--Verifique a porta:
+O Ollama precisa estar rodando:
 
--netstat -ano | findstr 11434
+```
+ollama serve
+```
 
--Se aparecer algo assim:
+Verifique se o modelo está disponível:
 
--TCP 127.0.0.1:11434   LISTENING   <PID>
-
--Então outro processo está usando a porta.
+```
+curl http://127.0.0.1:11434/v1/models
+```
 
 ---
 
-#✔️ Como resolver
--Pegue o PID exibido
+# 🚨 Problemas comuns com a porta 11434
 
--Finalize o processo:
+Verificar se a porta está ocupada:
 
--taskkill /PID <PID> /F
+```
+netstat -ano | findstr 11434
+```
 
--Inicie o Ollama novamente:
+Se aparecer:
 
--ollama serve
+```
+TCP 127.0.0.1:11434   LISTENING   <PID>
+```
+
+Outro processo está usando a porta.
+
+---
+
+## ✔️ Como resolver
+
+Mate o processo pela PID:
+
+```
+taskkill /PID <PID> /F
+```
+
+Depois reinicie o Ollama:
+
+```
+ollama serve
+```
+
+---
