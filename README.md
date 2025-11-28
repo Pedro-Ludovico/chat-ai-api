@@ -43,7 +43,7 @@ Integração entre **FastAPI**, **Strands Agents SDK** e **Ollama** para criar u
 Baixe e instale o Ollama:  
 👉 https://ollama.com/download
 
-Após instalar, execute:
+Após instalar, execute no PowerShell:
 
 ```
 ollama pull mistral
@@ -53,7 +53,7 @@ ollama pull mistral
 
 ## 3) Criar ambiente virtual e instalar dependências
 
-Entre na pasta do projeto:
+Entre na pasta do projeto ainda no PowerShell:
 
 ```
 cd C:\Users\SeuUsuario\agente-chat
@@ -90,7 +90,7 @@ http://localhost:8000/docs
 
 ## 5) Iniciar o servidor do Ollama
 
-O Ollama precisa estar rodando:
+O Ollama precisa estar rodando (Abra um novo PowerShell):
 
 ```
 ollama serve
