@@ -29,7 +29,6 @@ Este projeto foi desenvolvido para atender ao desafio técnico proposto pela emp
 ├── requirements.txt
 ├── .env
 ├── README.md
-├── README_EN.md
 ├── .gitignore
 └── agente/
 ├── agent.py
@@ -54,81 +53,86 @@ Siga os passos abaixo.
 
 ## 2) Instalar o Ollama
 
-Baixe e instale o Ollama:  
-👉 https://ollama.com/download
+-Baixe e instale o Ollama:  
+-👉 https://ollama.com/download
 
-Após instalar, abra um terminal e execute (opcional: `pull` para baixar o modelo, `run` para executar direto):
+-Após instalar, abra um terminal no PowerShell e execute:
 
-```bash
-ollama pull mistral
-# ou
-ollama run mistral
+
+-ollama pull mistral
+
+
+---
+
 3) Criar ambiente virtual e instalar dependências
 Abra o PowerShell dentro da pasta do projeto extraído:
 
-powershell
-Copiar código
-cd C:\Users\SeuUsuario\agente-chat
-Windows:
-powershell
-Copiar código
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-pip install -r requirements.txt
-Linux/macOS:
-bash
-Copiar código
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
+-cd C:\Users\SeuUsuario\agente-chat
+
+-Windows:
+
+-python -m venv .venv
+-.\.venv\Scripts\Activate.ps1
+-pip install -r requirements.txt
+
+-Linux/macOS:
+
+-python -m venv .venv
+-source .venv/bin/activate
+-pip install -r requirements.txt
+
+
+---
+
+
 4) Iniciar o servidor FastAPI
 No terminal (após ativar o .venv):
 
-bash
-Copiar código
-uvicorn main:app --reload
-A API ficará disponível em:
+-uvicorn main:app --reload
 
-👉 http://localhost:8000
-👉 http://localhost:8000/docs (Swagger UI)
+-A API ficará disponível em:
+
+-👉 http://localhost:8000
+-👉 http://localhost:8000/docs (Swagger UI)
+
+
+---
+
 
 5) Iniciar o servidor do Ollama
-⚠️ O Ollama precisa estar rodando antes de fazer perguntas gerais ao agente.
+-⚠️ O Ollama precisa estar rodando antes de fazer perguntas gerais ao agente.
 
-Abra outro terminal e execute:
+-Abra outro terminal e execute:
 
-bash
-Copiar código
-ollama serve
-Verifique se o modelo está disponível:
+-ollama serve
 
-bash
-Copiar código
-curl http://127.0.0.1:11434/v1/models
+-Verifique se o modelo está disponível:
+
+-curl http://127.0.0.1:11434/v1/models
+
+
+---
+
+
 🚨 Problemas comuns com a porta 11434
-❗ Se o Ollama der erro de porta ocupada
-Verifique a porta:
+-❗ Se o Ollama der erro de porta ocupada
+-Verifique a porta:
 
-powershell
-Copiar código
-netstat -ano | findstr 11434
-Se aparecer algo assim:
+-netstat -ano | findstr 11434
 
-nginx
-Copiar código
-TCP 127.0.0.1:11434   LISTENING   <PID>
-Então outro processo está usando a porta.
+-Se aparecer algo assim:
 
-✔️ Como resolver
-Pegue o PID exibido
+-TCP 127.0.0.1:11434   LISTENING   <PID>
 
-Finalize o processo:
+-Então outro processo está usando a porta.
 
-powershell
-Copiar código
-taskkill /PID <PID> /F
-Inicie o Ollama novamente:
+-✔️ Como resolver
+-Pegue o PID exibido
 
-bash
-Copiar código
-ollama serve
+-Finalize o processo:
+
+-taskkill /PID <PID> /F
+
+-Inicie o Ollama novamente:
+
+-ollama serve
