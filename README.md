@@ -53,30 +53,21 @@ Siga os passos abaixo.
 
 # 2) Instalar o Ollama
 
--Baixe e instale o Ollama:  
+Baixe e instale o Ollama:  
 -👉 https://ollama.com/download
-
 -Após instalar, abra um terminal no PowerShell e execute:
-
-
 -ollama pull mistral
-
 
 ---
 
 #3) Criar ambiente virtual e instalar dependências
 Abra o PowerShell dentro da pasta do projeto extraído:
-
 -cd C:\Users\SeuUsuario\agente-chat
-
--Windows:
-
+Windows:
 -python -m venv .venv
 -.\.venv\Scripts\Activate.ps1
 -pip install -r requirements.txt
-
--Linux/macOS:
-
+Linux/macOS:
 -python -m venv .venv
 -source .venv/bin/activate
 -pip install -r requirements.txt
