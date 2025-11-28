@@ -1,10 +1,11 @@
 # 🧠 API de Chat com Agente de IA  
+
 Integração entre **FastAPI**, **Strands Agents SDK** e **Ollama** para criar um agente de IA capaz de:
 
-- Responder perguntas gerais usando um modelo LLM local
-- Detectar operações matemáticas automaticamente
-- Utilizar uma Tool de Cálculo para resolver contas com segurança
-- Manter lógica de pré-processamento e pós-processamento da mensagem
+- Responder perguntas gerais usando um modelo LLM local  
+- Detectar operações matemáticas automaticamente  
+- Utilizar uma Tool de Cálculo para resolver contas com segurança  
+- Manter lógica de pré-processamento e pós-processamento da mensagem  
 
 Este projeto foi desenvolvido para atender ao desafio técnico proposto pela empresa, demonstrando boas práticas, modularização e uso eficiente de ferramentas de IA locais.
 
@@ -12,12 +13,12 @@ Este projeto foi desenvolvido para atender ao desafio técnico proposto pela emp
 
 # 🚀 Tecnologias Utilizadas
 
-- Python 3.12+
-- FastAPI
-- Uvicorn
-- Strands Agents SDK
-- Ollama (modelo LLM local)
-- Python-dotenv
+- Python 3.12+  
+- FastAPI  
+- Uvicorn  
+- Strands Agents SDK  
+- Ollama (modelo LLM local)  
+- Python-dotenv  
 
 ---
 
@@ -34,109 +35,100 @@ Este projeto foi desenvolvido para atender ao desafio técnico proposto pela emp
 ├── agent.py
 └── agent_tools.py
 
----
-
-## ▶️ Como executar o projeto 
- 
-Basta seguir os passos abaixo.
+yaml
+Copiar código
 
 ---
 
-### 1) Baixar o projeto
-1. Vá até o repositório no GitHub  
+# ▶️ Como executar o projeto (VERSÃO SIMPLES - baixar ZIP)
+
+Siga os passos abaixo.
+
+## 1) Baixar o projeto
+1. Acesse o repositório no GitHub  
 2. Clique no botão verde **Code**  
 3. Clique em **Download ZIP**  
-4. Extraia o arquivo ZIP em alguma pasta no seu computador
+4. Extraia o arquivo em alguma pasta no seu computador  
 
 ---
 
-### 2) Instalar o Ollama
+## 2) Instalar o Ollama
 
-Baixe e instale o Ollama (necessário para rodar a IA local):  
+Baixe e instale o Ollama:  
 👉 https://ollama.com/download
 
-Depois abra o terminal e rode: 
+Após instalar, abra um terminal e execute (opcional: `pull` para baixar o modelo, `run` para executar direto):
 
-"ollama run mistral" ou "ollama pull mistral"
+```bash
+ollama pull mistral
+# ou
+ollama run mistral
+3) Criar ambiente virtual e instalar dependências
+Abra o PowerShell dentro da pasta do projeto extraído:
 
-Isso baixa o modelo de IA que o projeto usa.
-
----
-
-### 3) Criar ambiente virtual e instalar dependências
-
-Abra o PowerShell dentro da pasta do projeto:
-
-cd C:\Users\Exemplo\agente-chat>
-
-E execute:
-
-#### Windows:
+powershell
+Copiar código
+cd C:\Users\SeuUsuario\agente-chat
+Windows:
+powershell
+Copiar código
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
-
-#### Linux/macOS:
+Linux/macOS:
+bash
+Copiar código
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
+4) Iniciar o servidor FastAPI
+No terminal (após ativar o .venv):
 
----
-
-### 4) Rodar o servidor FastAPI
-
-No terminal:
-
+bash
+Copiar código
 uvicorn main:app --reload
-
 A API ficará disponível em:
 
-👉 http://localhost:8000  
+👉 http://localhost:8000
+👉 http://localhost:8000/docs (Swagger UI)
 
-Documentação automática (Swagger):  
-👉 http://localhost:8000/docs
+5) Iniciar o servidor do Ollama
+⚠️ O Ollama precisa estar rodando antes de fazer perguntas gerais ao agente.
 
----
+Abra outro terminal e execute:
 
-### 5) Iniciar o Ollama (necessário para o agente responder perguntas gerais)
-
-O Ollama precisa estar rodando ANTES do FastAPI atender perguntas.
-
-No PowerShell (OUTRO terminal):
-
+bash
+Copiar código
 ollama serve
+Verifique se o modelo está disponível:
 
-
-E verifique se o modelo está disponível:
-
+bash
+Copiar código
 curl http://127.0.0.1:11434/v1/models
+🚨 Problemas comuns com a porta 11434
+❗ Se o Ollama der erro de porta ocupada
+Verifique a porta:
 
----
-
-Se a porta 11434 estiver ocupada:
-
-Checar se a porta 11434 está livre
-
+powershell
+Copiar código
 netstat -ano | findstr 11434
+Se aparecer algo assim:
 
-Você deve ver algo como:
+nginx
+Copiar código
+TCP 127.0.0.1:11434   LISTENING   <PID>
+Então outro processo está usando a porta.
 
-TCP 127.0.0.1:11434   LISTENING   <PID do Ollama>
-
-❌ Se a porta estiver travada por outro processo:
-
-Encontre o PID:
-
-netstat -ano | findstr 11434
-
+✔️ Como resolver
+Pegue o PID exibido
 
 Finalize o processo:
 
-taskkill /PID <PID> /F | <> <== alterar apenas dentro das chaves angulares
-
-
+powershell
+Copiar código
+taskkill /PID <PID> /F
 Inicie o Ollama novamente:
 
+bash
+Copiar código
 ollama serve
-
-
