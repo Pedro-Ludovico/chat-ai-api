@@ -1,4 +1,4 @@
-# main.py
+
 from fastapi import FastAPI
 from pydantic import BaseModel
 import asyncio
@@ -7,37 +7,41 @@ import traceback
 import re
 import json
 
+# ---------- Inicialização básica ----------
 app = FastAPI()
-agent = None
+agent = None  # instância global do agente (reutilizada entre requisições)
 
+# Modelo de entrada esperado pelo endpoint /chat
 class Message(BaseModel):
     message: str
 
-# importamos a função de criar agente, mas NÃO a chamamos agora
+# Importa factory do agente e a função 'calcular' usada como "tool"
 from agente.agent import criar_agente
-# import da tool para chamada direta (pré-processamento / pós-processamento)
 from agente.agent_tools import calcular
 
-# ---------------------
-# Helpers: detecção e pós-processamento
-# ---------------------
+# ---------- Detecção de expressões matemáticas ----------
 math_detection_regex = re.compile(
-    r"(\b(sqrt|raiz|raiz quadrad|raiz cúbica|pow|elevad|elevar|raiz)\b)|"  # keywords
-    r"([0-9]+[.,]?[0-9]*\s*[\+\-\*/\^]\s*[0-9]+[.,]?[0-9]*)|"            # 2 + 2 or 3,14 * 2
-    r"([0-9]+([.,][0-9]{3})*([.,][0-9]+)?)",                             # numbers with comma/point
+    r"(\b(sqrt|raiz|raiz quadrad|raiz cúbica|pow|elevad|elevar|raiz)\b)|"  
+    r"([0-9]+[.,]?[0-9]*\s*[\+\-\*/\^]\s*[0-9]+[.,]?[0-9]*)|"            
+    r"([0-9]+([.,][0-9]{3})*([.,][0-9]+)?)",                             
     flags=re.IGNORECASE
 )
 
+# ---------- Função para detectar e executar tool-calls embutidas no texto ----------
 def _extract_and_execute_tool_calls(text: str) -> str:
     """
     Detecta JSON de tool-calls no texto (ex.: "[{\"name\":\"calcular\",\"arguments\":{...}}]")
     ou prefixos como "[TOOL_CALLS]  [ ... ]", extrai a lista, executa as tools suportadas
     (hoje apenas 'calcular') e substitui o trecho pelo resultado.
+
+    Retorna o texto com as tool-calls substituídas pelos resultados.
+    Se nada for detectado / json inválido -> retorna o texto original.
     """
     if not text or not isinstance(text, str):
         return text
 
-    # localizar a primeira lista JSON de objetos (procura por "[{")
+    # Busca uma sub-string que pareça um array JSON iniciando por '[{' e terminando por '}]'.
+    
     start = text.find('[{')
     end = text.rfind('}]')
     if start == -1 or end == -1 or end <= start:
@@ -47,21 +51,25 @@ def _extract_and_execute_tool_calls(text: str) -> str:
     try:
         calls = json.loads(json_text)
     except Exception:
-        # tentativa alternativa: extrair entre primeiro '[' e último ']'
+        # Fallback: tenta extrair primeiro '[' até último ']' 
         try:
             alt = text[text.find('['): text.rfind(']')+1]
             calls = json.loads(alt)
             json_text = alt
         except Exception:
+            # Se não conseguir decodificar JSON, retorna o texto original sem mexer
             return text
 
     results = []
     for call in calls:
+        # garante que cada item seja um dict
         if not isinstance(call, dict):
             continue
         name = call.get("name")
         args = call.get("arguments", {})
+        # hoje só existe a tool 'calcular' suportada aqui
         if name == "calcular":
+            # pega a expressão (tenta por duas chaves diferentes, mas código atual tem redundância)
             expr = args.get("expressao") or args.get("expressao", "")
             try:
                 tool_res = calcular(expr)
@@ -69,47 +77,59 @@ def _extract_and_execute_tool_calls(text: str) -> str:
                 tool_res = f"Erro na tool calcular: {e}"
             results.append(str(tool_res))
         else:
+            # qualquer tool não mapeada é retornada como texto informando não-suporte
             results.append(f"[Tool {name} não suportada]")
 
     replacement = " ".join(results).strip()
+    # substitui o trecho JSON original pelo resultado concatenado
     final_text = text[:start] + replacement + text[end+2:]
+    # limpa espaços duplicados e retorna
     final_text = re.sub(r"\s{2,}", " ", final_text).strip()
     return final_text
 
+# ---------- Função para extrair texto de respostas do agent ----------
 def _extract_text_from_agent_response(resp) -> str:
     """
-    Tenta extrair o texto principal de respostas estruturadas do agent.
-    Retorna string com o conteúdo textual a ser exibido / pós-processado.
+    Recebe 'resp' que pode ser:
+      - uma string simples
+      - um dict com formatos variados (ex.: {'message': {'content': [...]}})
+      - um dict com chaves como 'response', 'result', 'output'
+      - outros objetos
+
+    Objetivo: retornar uma string "limpa" que represente o conteúdo textual
+    principal que será exibido ao usuário ou pós-processado.
     """
     if resp is None:
         return ""
 
-    # Se for string simples, devolve direto
+    # Se já for string, retorna direto
     if isinstance(resp, str):
         return resp
 
-    # Se for dicionário, tenta extrair padrões comuns do strands agent
+    # Se for dict, tenta várias estratégias para achar o conteúdo
     if isinstance(resp, dict):
-        # Caso padrão: resp["message"]["content"] -> lista de dicts com 'text' ou 'toolUse'
+        # Caso típico: resp = {'message': {'content': [ ... ] } }
         m = resp.get("message")
         if isinstance(m, dict):
             content = m.get("content")
             if isinstance(content, list) and content:
-                # Prioriza o primeiro item com 'text'
+                # percorre elementos do content buscando formatos conhecidos
                 for c in content:
                     if isinstance(c, dict):
+                        # formato com "text"
                         if "text" in c:
                             return c["text"]
-                        # caso venha toolUse (antes de pos-processar)
+                        # formato que indica uso de ferramenta (toolUse)
                         if "toolUse" in c:
-                            # stringify toolUse para pós-processamento
+                            # transforma numa string JSON (para ser reconhecido por _extract_and_execute_tool_calls)
                             return json.dumps([c["toolUse"]])
-                # fallback: stringify content
+                # se não encontrou nada padronizado, retorna o content inteiro como JSON
                 return json.dumps(content)
-            # fallback: se message for string
+            # se m for string
             if isinstance(m, str):
                 return m
-        # outras chaves comuns: 'response', 'result', 'output'
+
+        # tenta chaves alternativas comuns
         for key in ("response", "result", "output"):
             if key in resp:
                 val = resp[key]
@@ -117,46 +137,46 @@ def _extract_text_from_agent_response(resp) -> str:
                     return val
                 if isinstance(val, dict):
                     return json.dumps(val)
-        # fallback geral: stringify
+
+        # fallback: tenta serializar tudo como JSON
         try:
             return json.dumps(resp)
         except Exception:
             return str(resp)
 
-    # se for outro tipo (objeto custom), converte para string
+    # para outros tipos, tenta converter pra string
     try:
         return str(resp)
     except Exception:
         return ""
 
-# ---------------------
-# Endpoint /chat principal
-# ---------------------
+# ---------- Endpoint principal /chat ----------
 @app.post("/chat")
 async def chat(data: Message):
     global agent
     try:
-        # --- checagem rápida de intenção matemática (pré-processamento) ---
+        # 1) Se a mensagem aparenta conter uma expressão matemática, tenta chamar 'calcular' diretamente
+        #    (pré-processo rápido antes de envolver o agente).
         if math_detection_regex.search(data.message):
             try:
                 tool_result = calcular(data.message)
-                # se tool_result for objeto complexo, garanta string
                 return {"response": str(tool_result)}
             except Exception as e:
+                # log de erro mas segue processamento normal (não falha a requisição)
                 print("Erro ao chamar calcular diretamente (pré-process):", e)
-                # cairá no fluxo padrão abaixo
 
-        # cria o agente só na primeira requisição (evita falhas na importação)
+        # 2) Cria o agente se não existir (factory)
         if agent is None:
             agent = criar_agente()
 
-        # debug: mostra no terminal que tipo de objeto é e seus métodos públicos
         print("DEBUG agent type:", type(agent))
         print("DEBUG agent dir():", [name for name in dir(agent) if not name.startswith("_")])
 
         resp = None
 
-        # 1) tenta agent.run(...)
+        # 3) Tentativa de invocar o agente:
+        #    - primeiro, tenta chamar 'run' se existir (método preferencial)
+        #    - se for coroutine -> await, senão executa em executor (para evitar bloquear loop)
         run_attr = getattr(agent, "run", None)
         if callable(run_attr):
             if inspect.iscoroutinefunction(run_attr):
@@ -165,7 +185,7 @@ async def chat(data: Message):
                 loop = asyncio.get_running_loop()
                 resp = await loop.run_in_executor(None, run_attr, data.message)
         else:
-            # 2) tenta chamar o próprio agent como callable: agent(...)
+            # 4) Se 'run' não existe, tenta se o próprio agent for chamável (callable)
             if callable(agent):
                 loop = asyncio.get_running_loop()
                 if inspect.iscoroutinefunction(agent):
@@ -173,7 +193,7 @@ async def chat(data: Message):
                 else:
                     resp = await loop.run_in_executor(None, agent, data.message)
             else:
-                # 3) tenta nomes alternativos comuns
+                # 5) Finalmente, tenta uma lista de nomes de métodos comuns em agents
                 for name in ("predict", "chat", "ask", "respond", "invoke", "run_agent", "invoke_async", "stream_async"):
                     fn = getattr(agent, name, None)
                     if callable(fn):
@@ -184,34 +204,32 @@ async def chat(data: Message):
                             resp = await loop.run_in_executor(None, fn, data.message)
                         break
 
-        # Se nada foi obtido, retorna debug
+        # se nada foi executado, devolve erro com a lista de membros do agent 
         if resp is None:
             agent_members = [name for name in dir(agent) if not name.startswith("_")]
             msg = "Nenhum método suportado encontrado para executar o Agent. Veja 'agent_dir' no retorno e no terminal."
             print(msg)
             return {"error": msg, "agent_dir": agent_members}
 
-        # ---------------------
-        # Pós-processamento: extrair texto e substituir tool-calls embutidas
-        # ---------------------
+        # 6) Extrai texto da resposta (suporta vários formatos)
         text_to_process = _extract_text_from_agent_response(resp)
+        # 7) Executa tool-calls embutidas (se houver)
         final_text = _extract_and_execute_tool_calls(text_to_process)
 
-        # Se o texto final estiver vazio, fallback para string do resp
+        # fallback: se pós-processamento removeu o texto por algum motivo, tenta extrair novamente
         if not final_text:
             final_text = _extract_text_from_agent_response(resp)
 
         return {"response": final_text}
 
     except Exception as e:
+        # Em caso de erro inesperado, retorna trace para debugging (pode vazar informação: atenção em produção)
         tb = traceback.format_exc()
         print("ERRO NO /chat:\n", tb)
         return {"error": str(e), "trace": tb}
 
 
-# -------------------------------------------------------------------
-# Endpoint útil: resetar/recriar o agente quando ele travar
-# -------------------------------------------------------------------
+# ---------- Endpoint para reset do agente ----------
 @app.post("/reset")
 async def reset():
     """
