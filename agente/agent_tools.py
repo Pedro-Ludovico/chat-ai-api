@@ -11,7 +11,6 @@ _ALLOWED_FUNCS = {
     "sin": math.sin,
     "cos": math.cos,
     "tan": math.tan,
-    # adicione mais se precisar
 }
 
 # Conjunto de caracteres permitidos na expressão final
@@ -45,7 +44,7 @@ def _normalize_text_to_expr(text: str) -> str:
         # extrai só a parte com parênteses e nomes
         return txt
 
-    # substituir '^' por '**'
+    # substituir '^' por '**' (potência)
     txt = txt.replace("^", "**")
 
     # extrair apenas números e operadores (caso o usuário escreva "quanto é 2 * 3")
