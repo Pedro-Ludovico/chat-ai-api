@@ -137,3 +137,7 @@ ollama serve
 ```
 
 ---
+
+### Reset
+
+Aperte o Reset quando precisar reiniciar o agente, ele pode travar caso não entenda sua pergunta.
